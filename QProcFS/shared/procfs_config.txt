@@ -1,0 +1,7 @@
+# this is the main configiuration file for QProceFS package
+# the first field is a path to /proc entry and remaining fields are the values to input
+/proc/sys/vm/laptop_mode 5
+/proc/sys/vm/dirty_writeback_centisecs 8640000
+/proc/sys/vm/dirty_expire_centisecs 8640000
+/proc/sys/vm/dirty_ratio 40
+/proc/sys/vm/swappiness 10
