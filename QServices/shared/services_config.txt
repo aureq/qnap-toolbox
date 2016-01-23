@@ -1,0 +1,9 @@
+# this is the main configiuration file for QServices package
+# Each like should contain a services that you wish to stop after the NAS has started
+/etc/init.d/porter.sh
+/etc/init.d/cupsd.sh
+/etc/init.d/btd.sh
+/etc/init.d/QMediaService.sh
+/etc/init.d/iscsiinit.sh
+/etc/init.d/qsyncman.sh
+/etc/init.d/ImRd.sh
