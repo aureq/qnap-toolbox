@@ -19,7 +19,7 @@ case "$1" in
 		fi
 
 		if [ -f "$QPROCFS_BAK" ]; then
-			echo "Renamed QProcFS backup to ${QPROCFS_BAK}.orig"
+			echo "Renamed $QPKG_NAME backup to ${QPROCFS_BAK}.orig"
 			mv -f "$QPROCFS_BAK" "${QPROCFS_BAK}.orig"
 		fi
 
