@@ -7,3 +7,4 @@
 /etc/init.d/iscsiinit.sh
 /etc/init.d/qsyncman.sh
 /etc/init.d/ImRd.sh
+/etc/init.d/mariadb.sh
