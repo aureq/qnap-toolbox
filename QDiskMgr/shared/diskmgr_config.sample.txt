@@ -1,0 +1,10 @@
+# this file should be named diskmgr_config.txt
+# format:
+# /dev/disk1:/dev/disk2:/dev/diskN device_type destination_device
+# /dev/diskN is /dev/sdya (raw device) or /dev/sdya1 (partition)
+# device_type: either mdadm or lvm
+# destination_device: /dev/mdXX of the new device to create
+#
+# Example:
+# /dev/sdya1:/dev/sdya2 mdadm /dev/md66
+# /dev/sdya3:/dev/sdya4 mdadm /dev/md77
