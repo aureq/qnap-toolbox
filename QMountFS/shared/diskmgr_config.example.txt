@@ -1,0 +1,11 @@
+# the syntax of this file is highly inspired from /etc/fstab format.
+# copy this example as diskmgr_config.txt and adapt it to match your needs.
+#
+# <file system>: device file thank holds the file system
+# <mount point>: where the file system should be mounted
+# <type>: file system type
+# <options>: mount options
+# [force mkdir]: (optional) create the mount point folder if missing. (default: 0)
+# [force fsck]: (optional) force fsck on file system before mounting. )default 0)
+#
+# <file system> <mount point>   <type>  <options>  [force mkdir] [force fsck] 
