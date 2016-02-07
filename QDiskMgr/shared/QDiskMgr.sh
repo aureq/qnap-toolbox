@@ -118,12 +118,6 @@ case "$1" in
 		;;
 
 	stop)
-		ENABLED=$(/sbin/getcfg $QPKG_NAME Enable -u -d FALSE -f $CONF)
-		if [ "$ENABLED" != "TRUE" ]; then
-				echo "$QPKG_NAME is disabled."
-				exit 1
-		fi
-
 		if [ ! -f "$QDISKMGR_CFG" ]; then
 			echo "$QPKG_NAME: Couldn't find $QDISKMGR_CFG."
 			exit 1
