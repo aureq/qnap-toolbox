@@ -15,19 +15,6 @@ make_base(){
 	fi
 }
 
-# Determine BASE installation location by checking where the Public folder is.
-if [ -z $VOL_BASE ]; then
-        for datadirtest in $BASE_GROUP; do
-                [ -d $datadirtest/Public ] && VOL_BASE="/${publicdirp1}/${publicdirp2}"
-        done
-fi
-if [ -z $VOL_BASE ] ; then
-        echo "The Public share not found."
-        return 1
-fi
-
-}
-
 mount_deb(){
 	cp /etc/resolv.conf /etc/hostname /etc/hosts $DEB_BASE/etc
 	mount -o bind /dev $DEB_BASE/dev
