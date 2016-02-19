@@ -156,7 +156,7 @@ case "$1" in
 	start)
 	## test qpkg enable ...
 		echo "Starting DEFAULT_VERSION or Change Default to $3 "
-		RESULT=`/sbin/getcfg debian6 Enable -u -d TRUE -f /etc/config/qpkg.conf`
+		RESULT=`/sbin/getcfg $QPKG_NAME Enable -u -d TRUE -f /etc/config/qpkg.conf`
 		if  [ "$RESULT" = "FALSE" ] ; then
 			echo " Debian6 is disabled "
 			exit 1
@@ -210,10 +210,10 @@ case "$1" in
 		$0 start -v $DEB_VERSION
 		;;
 	setqpkg_enable)
-		/sbin/setcfg debian6 Enable TRUE -f /etc/config/qpkg.conf
+		/sbin/setcfg $QPKG_NAME Enable TRUE -f /etc/config/qpkg.conf
 		;;
 	setqpkg_disable)
-		/sbin/setcfg debian6 Enable FALSE -f /etc/config/qpkg.conf
+		/sbin/setcfg $QPKG_NAME Enable FALSE -f /etc/config/qpkg.conf
 		;;
 	status)
 		STAT=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
@@ -234,7 +234,7 @@ case "$1" in
 					echo " VERSION $i is started BASE is : $STAT "
 				fi
 			done
-			echo " QPKG status is (Enable value) : " `/sbin/getcfg debian6 Enable -d "Not Set" -f /etc/config/qpkg.conf`
+			echo " QPKG status is (Enable value) : " `/sbin/getcfg $QPKG_NAME Enable -d "Not Set" -f /etc/config/qpkg.conf`
 		;;
 	stop_all)
 			AVAL=`grep '\[' /etc/config/debian6.conf | grep -v debian6 | tr -d '\[' | tr -d '\]'`
