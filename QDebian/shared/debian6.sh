@@ -7,17 +7,13 @@ BOOT_MODEL=`/bin/cat /etc/default_config/BOOT.conf 2>/dev/null`
 WebShare=`/sbin/getcfg SHARE_DEF defWeb -d Qweb -f /etc/config/def_share.info`
 
 make_base(){
-# Determine BASE installation location according to smb.conf
-BASE_GROUP="/share/HDA_DATA /share/HDB_DATA /share/HDC_DATA /share/HDD_DATA /share/HDE_DATA /share/HDF_DATA /share/HDG_DATA /share/HDH_DATA /share/MD0_DATA /share/MD1_DATA /share/MD2_DATA /share/MD3_DATA"
-publicdir=`/sbin/getcfg Public path -f /etc/config/smb.conf`
-if [ ! -z $publicdir ] && [ -d $publicdir ];then
-        publicdirp1=`/bin/echo $publicdir | /bin/cut -d "/" -f 2`
-        publicdirp2=`/bin/echo $publicdir | /bin/cut -d "/" -f 3`
-        publicdirp3=`/bin/echo $publicdir | /bin/cut -d "/" -f 4`
-        if [ ! -z $publicdirp1 ] && [ ! -z $publicdirp2 ] && [ ! -z $publicdirp3 ]; then
-                [ -d "/${publicdirp1}/${publicdirp2}/Public" ] && VOL_BASE="/${publicdirp1}/${publicdirp2}"
-        fi
-fi
+	# Determine BASE installation location according to /etc/config/def_share.info
+	VOL_BASE=`/sbin/getcfg SHARE_DEF defVolMP -d "" -f /etc/config/def_share.info`
+	if [ -z $VOL_BASE ] ; then
+		echo "The Public share not found."
+		return 1
+	fi
+}
 
 # Determine BASE installation location by checking where the Public folder is.
 if [ -z $VOL_BASE ]; then
