@@ -3,7 +3,6 @@
 DEB_VERSION="squeeze"
 
 QPKG_NAME="QDebian"
-
 BOOT_MODEL=`/bin/cat /etc/default_config/BOOT.conf 2>/dev/null`
 
 make_base(){
@@ -16,17 +15,35 @@ make_base(){
 }
 
 mount_deb(){
-	cp /etc/resolv.conf /etc/hostname /etc/hosts $DEB_BASE/etc
+	if [ ! -d $DEB_BASE/dev -o ! -d $DEB_BASE/proc ]; then
+		return 1
+	fi
 	mount -o bind /dev $DEB_BASE/dev
+	if [ "$?" -ne "0" ]; then
+		return 1
+	fi
+
 	mount -o bind /dev/pts $DEB_BASE/dev/pts
-	if [ "$BOOT_MODEL" = "TS-NASARM" ] ; then
+	if [ "$?" -ne "0" ]; then
+		return 1
+	fi
+
+	if [ "$BOOT_MODEL" = "TS-NASARM" ]; then
 		mount -o bind /proc $DEB_BASE/proc
+		if [ "$?" -ne "0" ]; then
+			return 1
+		fi
 	else
 		mount -t proc proc $DEB_BASE/proc
+		if [ "$?" -ne "0" ]; then
+			return 1
+		fi
 	fi
 
 	## source other_mount
 	source $QPKG_DIR/other_mount
+
+	cp /etc/resolv.conf /etc/hostname /etc/hosts $DEB_BASE/etc
 }
 
 umount_deb(){
@@ -99,6 +116,10 @@ if [ -z "$QPKG_DIR" -o ! -d "$QPKG_DIR" ]; then
 	exit 1
 fi
 ###
+if [ ! -e /etc/config/${QPKG_NAME}.conf ]; then
+	ln -s "$QPKG_DIR/${QPKG_NAME}.conf" /etc/config/${QPKG_NAME}.conf
+fi
+
 ########## TEST if first start
 if [ ! -e /root/.debian6_lock ] ; then
 	## clean all DEB_BASE and CURRENT_VERSION ... in case of crash ...
@@ -166,7 +187,11 @@ case "$1" in
 			exit 1
 		fi
 		mount_deb
-		echo " Root Folder : " $DEB_BASE " Debian chroot name : " $DEB_VERSION
+		if [ "$?" -ne "0"]; then
+			echo " Failed to mount system mounts"
+			exit 1
+		fi
+		echo " Root Folder : '$DEB_BASE' Debian chroot name : '$DEB_VERSION'"
 		/sbin/setcfg $DEB_VERSION DEB_BASE $DEB_BASE -f /etc/config/${QPKG_NAME}.conf
 		CURRENT=`/sbin/getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/${QPKG_NAME}.conf`
 		if [ -z $CURRENT ] ; then
