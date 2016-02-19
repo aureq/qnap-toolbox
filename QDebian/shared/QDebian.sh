@@ -4,7 +4,6 @@ DEB_VERSION="squeeze"
 
 QPKG_NAME="QDebian"
 
-BASE_DEBIAN="/share/HDA_DATA"
 BOOT_MODEL=`/bin/cat /etc/default_config/BOOT.conf 2>/dev/null`
 
 make_base(){
