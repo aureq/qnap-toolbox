@@ -22,68 +22,9 @@ mount_deb(){
 	if [ "$BOOT_MODEL" = "TS-NASARM" ] ; then
 		mount -o bind /proc $DEB_BASE/proc
 	else
-# i386
 		mount -t proc proc $DEB_BASE/proc
 	fi
 
-	if [ `/sbin/getcfg $DEB_VERSION INCL_HDA_ROOT -d TRUE -f /etc/config/debian6.conf` = TRUE ] ; then
-		mount -o bind /mnt/HDA_ROOT $DEB_BASE/mnt/HDA_ROOT
-	fi
-
-	if [ `/sbin/getcfg $DEB_VERSION INCL_EXT -d TRUE -f /etc/config/debian6.conf` = TRUE ] ; then
-		mount -o bind /mnt/ext $DEB_BASE/mnt/ext
-		if [ `/sbin/getcfg $DEB_VERSION INCL_HOME -d TRUE -f /etc/config/debian6.conf` = TRUE ] ; then
-			if [ ! -L /home ] ; then
-               			if [ ! -e $DEB_BASE/mnt/ext/home ] ; then
-                        		mkdir $DEB_BASE/mnt/ext/home
-                		fi
-                		mount -o bind /home $DEB_BASE/mnt/ext/home
-        		fi
-		fi
-	fi
-	if [ `/sbin/getcfg $DEB_VERSION INCL_PUBLIC -d TRUE -f /etc/config/debian6.conf` = TRUE ] ; then
-		mount -o bind $VOL_BASE/Public $DEB_BASE/share/Public
-	fi
-	
-	if [ `/sbin/getcfg $DEB_VERSION INCL_WEB -d TRUE -f /etc/config/debian6.conf` = TRUE ] ; then
-		if [ $WebShare = "Qweb" ]; then
-			mount -o bind $VOL_BASE/Qweb $DEB_BASE/share/Web
-		else
-			mount -o bind $VOL_BASE/Web $DEB_BASE/share/Web
-		fi
-	fi
-
-	if [ `/sbin/getcfg $DEB_VERSION INCL_MULTIMEDIA -d TRUE -f /etc/config/debian6.conf` = TRUE ] ; then
-	        if [ $WebShare = "Qweb" ]; then
-			mount -o bind $VOL_BASE/Qmultimedia $DEB_BASE/share/Multimedia
-		else
-	     	        mount -o bind $VOL_BASE/Multimedia $DEB_BASE/share/Multimedia
-		fi
-	fi
-
-	if [ `/sbin/getcfg $DEB_VERSION INCL_USB -d TRUE -f /etc/config/debian6.conf` = TRUE ] ; then
-        	if [ $WebShare = "Qweb" ]; then
-			mount -o bind $VOL_BASE/Qusb $DEB_BASE/share/Usb
-		else
-        	        mount -o bind $VOL_BASE/Usb $DEB_BASE/share/Usb
-		fi
-	fi
-
-	if [ `/sbin/getcfg $DEB_VERSION INCL_DOWNLOAD -d TRUE -f /etc/config/debian6.conf` = TRUE ] ; then
-        	if [ $WebShare = "Qweb" ]; then
-			mount -o bind $VOL_BASE/Qdownload $DEB_BASE/share/Download
-		else
-                	mount -o bind $VOL_BASE/Download $DEB_BASE/share/Download
-		fi
-	fi
-
-	if [ `/sbin/getcfg $DEB_VERSION INCL_RECORDINGS -d TRUE -f /etc/config/debian6.conf` = TRUE ] ; then
-	        if [ $WebShare = "Qweb" ]; then
-			mount -o bind $VOL_BASE/Qrecordings $DEB_BASE/share/Recordings
-		else
-                	mount -o bind $VOL_BASE/Recordings $DEB_BASE/share/Recordings
-		fi
-	fi
 	## source other_mount
 	source $QPKG_DIR/other_mount
 	
@@ -93,15 +34,6 @@ umount_deb(){
 ## ignore error
 	## other umount
 	source $QPKG_DIR/other_umount
-	umount $DEB_BASE/mnt/ext/home 2> /dev/null
-	umount $DEB_BASE/mnt/ext 2> /dev/null
-	umount $DEB_BASE/mnt/HDA_ROOT 2> /dev/null
-	umount $DEB_BASE/share/Public 2> /dev/null
-        umount $DEB_BASE/share/Web 2> /dev/null
-        umount $DEB_BASE/share/Multimedia 2> /dev/null
-        umount $DEB_BASE/share/Usb 2> /dev/null
-        umount $DEB_BASE/share/Download 2> /dev/null
-        umount $DEB_BASE/share/Recordings 2> /dev/null
 
 	umount $DEB_BASE/proc
 	umount $DEB_BASE/dev/pts
