@@ -27,7 +27,6 @@ mount_deb(){
 
 	## source other_mount
 	source $QPKG_DIR/other_mount
-	
 }
 
 umount_deb(){
@@ -48,46 +47,46 @@ umount_deb(){
 
 start_services(){
 for i in ${QPKG_DIR}/services/${DEB_VERSION}/S??* ;do
-     case "$i" in
-        *.sh)
-            # Source shell script for speed.
-            (
-                trap - INT QUIT TSTP
-                set start
-                . $i
-            )
-            ;;
-        *)	
+	case "$i" in
+	*.sh)
+		# Source shell script for speed.
+		(
+		trap - INT QUIT TSTP
+		set start
+		. $i
+		)
+		;;
+	*)
 			if [ -e $i ] ; then
 				$i start
 			else
 				echo "Link $i certernly incorrect"
 			fi
-            ;;
-    esac
+		;;
+	esac
 done
 }
 
 stop_services(){
 for i in $QPKG_DIR/services/${DEB_VERSION}/K??* ;do
-     case "$i" in
-        *.sh)
-            # Source shell script for speed.
-            (
-                trap - INT QUIT TSTP
-                set stop
-                . $i
-            )
-            ;;
-        *)
-            # No sh extension, so fork subprocess.
+	case "$i" in
+	*.sh)
+		# Source shell script for speed.
+		(
+		trap - INT QUIT TSTP
+		set stop
+		. $i
+		)
+		;;
+	*)
+		# No sh extension, so fork subprocess.
 			if [ -e $i ] ; then
 				$i stop
 			else
 				echo "Link $i certernly incorrect"
 			fi
-            ;;
-    esac
+		;;
+	esac
 done
 }
 
@@ -96,33 +95,33 @@ make_base
 ####
 QPKG_DIR=${VOL_BASE}/.qpkg/debian6
 ###
-########## TEST if firts start
+########## TEST if first start
 if [ ! -e /root/.debian6_lock ] ; then
 	## clean all DEB_BASE and CURRENT_VERSION ... in case of crash ...
-		AVAL=`grep '\[' /etc/config/debian6.conf | grep -v debian6 | tr -d '\[' | tr -d '\]'`
-		for i in $AVAL
-		do
-			/sbin/setcfg $i DEB_BASE "" -f /etc/config/debian6.conf
-		done	
-		/sbin/setcfg debian6 CURRENT_VERSION "" -f /etc/config/debian6.conf
+	AVAL=`grep '\[' /etc/config/debian6.conf | grep -v debian6 | tr -d '\[' | tr -d '\]'`
+	for i in $AVAL
+	do
+		/sbin/setcfg $i DEB_BASE "" -f /etc/config/debian6.conf
+	done
+	/sbin/setcfg debian6 CURRENT_VERSION "" -f /etc/config/debian6.conf
 	### then create LINK and mod /etc/profile
-        if [ ! -e /bin_deb ] ; then
-            /bin/ln -s ${QPKG_DIR}/bin_deb /bin_deb
-		fi
-		 # adding bin_deb apps into system path ...
-        /bin/cat /etc/profile | /bin/grep "PATH" | /bin/grep "/bin_deb" 1>>/dev/null 2>>/dev/null
-        if [ $? -ne 0 ] ; then
-			/bin/grep "PATH" /etc/profile | /bin/grep "/opt/bin" 1>>/dev/null 2>>/dev/null
-			if [ $? -ne 0 ] ; then
-				/bin/echo "export PATH=$PATH":/bin_deb >> /etc/profile
-			else
-				/bin/echo "export PATH=$PATH":/opt/bin:/opt/sbin:/bin_deb >> /etc/profile
-			fi
-		fi
-		grep -q deb_cwd /etc/profile
+	if [ ! -e /bin_deb ] ; then
+		/bin/ln -s ${QPKG_DIR}/bin_deb /bin_deb
+	fi
+	 # adding bin_deb apps into system path ...
+	/bin/cat /etc/profile | /bin/grep "PATH" | /bin/grep "/bin_deb" 1>>/dev/null 2>>/dev/null
+	if [ $? -ne 0 ] ; then
+		/bin/grep "PATH" /etc/profile | /bin/grep "/opt/bin" 1>>/dev/null 2>>/dev/null
 		if [ $? -ne 0 ] ; then
-			echo "alias deb_cwd='cd ${QPKG_DIR}'" >> /etc/profile
+			/bin/echo "export PATH=$PATH":/bin_deb >> /etc/profile
+		else
+			/bin/echo "export PATH=$PATH":/opt/bin:/opt/sbin:/bin_deb >> /etc/profile
 		fi
+	fi
+	grep -q deb_cwd /etc/profile
+	if [ $? -ne 0 ] ; then
+		echo "alias deb_cwd='cd ${QPKG_DIR}'" >> /etc/profile
+	fi
 	### create the lock
 	touch /root/.debian6_lock
 fi
@@ -130,20 +129,20 @@ fi
 DEB_VERSION=`/sbin/getcfg debian6 DEFAULT_VERSION -d root6 -f /etc/config/debian6.conf`
 FLAG_V=0
 if [ "$2" = "-v" ] ; then
-		if [ ! -z $3 ] ; then
-			DEB_VERSION=$3
-			FLAG_V=1
-		else
-			echo " -v MUST have a version Number"
-			/sbin/log_tool -t 2 -a "Chroot Debian -v need version to start"
-			exit 1
-		fi
-		RESULT=`/sbin/getcfg $DEB_VERSION Enable -d "FALSE" -f /etc/config/debian6.conf`
-		if  [ "$RESULT" = "FALSE" ] ; then
-            echo " $DEB_VERSION is disabled or don't exist in /etc/config/debian6.conf"
+	if [ ! -z $3 ] ; then
+		DEB_VERSION=$3
+		FLAG_V=1
+	else
+		echo " -v MUST have a version Number"
+		/sbin/log_tool -t 2 -a "Chroot Debian -v need version to start"
+		exit 1
+	fi
+	RESULT=`/sbin/getcfg $DEB_VERSION Enable -d "FALSE" -f /etc/config/debian6.conf`
+	if  [ "$RESULT" = "FALSE" ] ; then
+		echo " $DEB_VERSION is disabled or don't exist in /etc/config/debian6.conf"
 			/sbin/log_tool -t 2 -a "$DEB_VERSION is disabled or don't exist in /etc/config/debian6.conf"
-            exit 1
-        fi
+		exit 1
+	fi
 fi
 DEB_BASE=${QPKG_DIR}/$DEB_VERSION
 ####
@@ -155,14 +154,14 @@ case "$1" in
 		if  [ "$RESULT" = "FALSE" ] ; then
 			echo " Debian6 is disabled "
 			exit 1
-		fi	
+		fi
 		## test id already started ...
 		BASE=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
 		if [ ! -z $BASE ] ; then
 			echo " Debian chroot already Started $BASE "
 			exit 1
 		fi
-		mount_deb	
+		mount_deb
 		echo " Root Folder : " $DEB_BASE " Debian chroot name : " $DEB_VERSION
 		/sbin/setcfg $DEB_VERSION DEB_BASE $DEB_BASE -f /etc/config/debian6.conf
 		CURRENT=`/sbin/getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/debian6.conf`
@@ -170,7 +169,7 @@ case "$1" in
 			/sbin/setcfg debian6 CURRENT_VERSION ${DEB_VERSION} -f /etc/config/debian6.conf
 		else
 			echo " CURRENT VERSION exist no change it's a second version of chroot"
-		fi	
+		fi
 		start_services
 		/sbin/log_tool -t 0 -a "Chroot Debian $DEB_VERSION in : $DEB_BASE Started"
 		;;
@@ -179,7 +178,7 @@ case "$1" in
 		if [ "$DEB_BASE" = "" ] ; then
 			echo "Stop : Nothing to do VERSION $DEB_VERSION not started"
 			exit 0
-		fi		
+		fi
 		stop_services
 		umount_deb
 		/sbin/setcfg $DEB_VERSION DEB_BASE "" -f /etc/config/debian6.conf
@@ -239,7 +238,7 @@ case "$1" in
 				if [ -n "$STAT" ] ; then
 					$0 stop -v $i
 				fi
-			done	
+			done
 		;;
 	set_default)
 		/sbin/setcfg debian6 DEFAULT_VERSION $DEB_VERSION -f /etc/config/debian6.conf
@@ -260,9 +259,9 @@ case "$1" in
 		;;
 	*)
 		echo "Usage : $0 (start|stop|restart|set_default|set_current|update) [-v version] "
-		echo "     Or $0 (stop_all|setqpkg_enable|setqpkg_disable|status) "
+		echo "	Or $0 (stop_all|setqpkg_enable|setqpkg_disable|status) "
 		echo " "
-		echo "   start|stop [-v version] ... start/stop DEFAULT_VERSION or VERSION if -v version is set "	
+		echo "   start|stop [-v version] ... start/stop DEFAULT_VERSION or VERSION if -v version is set "
 		echo "   restart [-v version] ... stop then start DEFAULT_VERSION or VERSION if -v version is set"
 		echo "   set_default -v version .... set version as new default_version "
 		echo "   set_current -v version .... set CURRENT_VERSION to another running version"
