@@ -1,4 +1,4 @@
 #!/bin/sh
 
-vi /etc/config/debian6.conf
+vi /etc/config/QDebian.conf
 
