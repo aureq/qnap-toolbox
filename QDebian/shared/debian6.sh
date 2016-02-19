@@ -2,6 +2,8 @@
 #
 DEB_VERSION="squeeze"
 
+QPKG_NAME="QDebian"
+
 BASE_DEBIAN="/share/HDA_DATA"
 BOOT_MODEL=`/bin/cat /etc/default_config/BOOT.conf 2>/dev/null`
 WebShare=`/sbin/getcfg SHARE_DEF defWeb -d Qweb -f /etc/config/def_share.info`
@@ -93,7 +95,11 @@ done
 ########### START of SHELL script
 make_base
 ####
-QPKG_DIR=${VOL_BASE}/.qpkg/debian6
+QPKG_DIR=`/sbin/getcfg $QPKG_NAME Install_Path -d "" -f /etc/config/qpkg.conf`
+if [ -z "$QPKG_NAME" -o ! -d "$QPKG_NAME" ]; then
+	echo "QDebian installation path not found."
+	exit 1
+fi
 ###
 ########## TEST if first start
 if [ ! -e /root/.debian6_lock ] ; then
