@@ -6,7 +6,6 @@ QPKG_NAME="QDebian"
 
 BASE_DEBIAN="/share/HDA_DATA"
 BOOT_MODEL=`/bin/cat /etc/default_config/BOOT.conf 2>/dev/null`
-WebShare=`/sbin/getcfg SHARE_DEF defWeb -d Qweb -f /etc/config/def_share.info`
 
 make_base(){
 	# Determine BASE installation location according to /etc/config/def_share.info
