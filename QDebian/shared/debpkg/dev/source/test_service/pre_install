@@ -1,0 +1,6 @@
+#!/bin/sh
+########## THIS CODE RUN IN QNAP env.
+echo "Pre install"
+echo "Nothing to be done for test_service"
+
+exit 0

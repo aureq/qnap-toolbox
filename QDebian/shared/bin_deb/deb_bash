@@ -1,0 +1,34 @@
+#!/bin/sh
+
+if [ "$1" = "-v" ] ; then
+# assume $2 is version name
+	if [ -n "$2" ] ; then
+		VERSION=$2
+		shift
+		shift
+	else
+		echo " -v need a version after "
+		exit 1
+	fi
+else
+	VERSION=`getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/debian6.conf`
+	if [ "$VERSION" = "" ] ; then
+		VERSION=`getcfg debian6 DEFAULT_VERSION -d "" -f /etc/config/debian6.conf`
+	fi
+fi
+DEB_BASE=`getcfg $VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+
+if [ -z $DEB_BASE ] ; then
+	echo " Debian 6 Root folder unknow or env. not set"
+	echo " Usage : deb_bash [-v version] "
+	echo " or : deb_bash [-v version] chroot_prog arg1 arg2 ... "
+	exit 1
+fi
+
+if [ $# = 0 ] ; then
+        chroot $DEB_BASE /bin/bash
+else
+        chroot $DEB_BASE $*
+fi
+
+exit

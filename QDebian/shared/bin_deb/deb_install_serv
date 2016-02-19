@@ -1,0 +1,106 @@
+#!/bin/sh
+
+make_base(){
+# Determine BASE installation location according to smb.conf
+BASE_GROUP="/share/HDA_DATA /share/HDB_DATA /share/HDC_DATA /share/HDD_DATA /share/HDE_DATA /share/HDF_DATA /share/HDG_DATA /share/HDH_DATA /share/MD0_DATA /share/MD1_DATA /share/MD2_DATA /share/MD3_DATA"
+publicdir=`/sbin/getcfg Public path -f /etc/config/smb.conf`
+if [ ! -z $publicdir ] && [ -d $publicdir ];then
+        publicdirp1=`/bin/echo $publicdir | /bin/cut -d "/" -f 2`
+        publicdirp2=`/bin/echo $publicdir | /bin/cut -d "/" -f 3`
+        publicdirp3=`/bin/echo $publicdir | /bin/cut -d "/" -f 4`
+        if [ ! -z $publicdirp1 ] && [ ! -z $publicdirp2 ] && [ ! -z $publicdirp3 ]; then
+                [ -d "/${publicdirp1}/${publicdirp2}/Public" ] && VOL_BASE="/${publicdirp1}/${publicdirp2}"
+        fi
+fi
+
+# Determine BASE installation location by checking where the Public folder is.
+if [ -z $VOL_BASE ]; then
+        for datadirtest in $BASE_GROUP; do
+                [ -d $datadirtest/Public ] && VOL_BASE="/${publicdirp1}/${publicdirp2}"
+        done
+fi
+if [ -z $VOL_BASE ] ; then
+        echo "The Public share not found."
+        return 1
+fi
+
+}
+
+## Main
+if [ -z $1 ] ; then
+	echo " Put your service_name file in $DPKG_DIR/"
+	echo " Usage : deb_install_serv service_name [-v version]"
+	echo "     I supply a test service (nothing done) : opy it to $DPKG_DIR then deb_install test_service "
+	exit 0
+fi
+
+make_base
+QPKG_DIR=$VOL_BASE/.qpkg/debian6
+## installation inside debian chroot
+
+
+## get VERSION
+VERSION=`/sbin/getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/debian6.conf`
+if [ "$2" = "-v" ] ; then
+	if [ -n "$3" ] ; then
+		VERSION=$3
+	else
+		echo " -v need a chroot version after "
+	fi
+fi
+## get DEB_BASE
+DEB_BASE=`/sbin/getcfg $VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+if [ -z $DEB_BASE ] ; then
+	echo " hum ... Debian BASE is not defined ??? debian chroot MUST be up "
+	exit 1
+fi
+DPKG_DIR=$QPKG_DIR/debpkg
+##
+if [ -d $DPKG_DIR/${1} ] ; then
+	##
+	if [ -e $DPKG_DIR/${1}/pre_install ] ; then
+		$DPKG_DIR/${1}/pre_install
+		if [ $? -ne 0 ] ; then
+			echo "Erreur during pre_install"
+			exit 1
+		fi
+	fi
+	##
+	cp $DPKG_DIR/${1}/install $DEB_BASE/tmp/
+	cp -R $DPKG_DIR/${1}/data $DEB_BASE/tmp/
+	chmod +x $DEB_BASE/tmp/install
+	#
+	deb_bash -v $VERSION /tmp/install
+	#
+	rm -f $DEB_BASE/tmp/install
+	rm -R $DEB_BASE/tmp/data
+	##
+	if [ -e $DPKG_DIR/${1}/post_install ] ; then
+		$DPKG_DIR/${1}/post_install
+		if [ $? -ne 0 ] ; then
+			echo "Erreur during post_install"
+			exit 1
+		fi
+	fi
+	##
+	/sbin/setcfg $VERSION $1 INSTALLED -f /etc/config/debian6.conf
+	if [ -e $DPKG_DIR/${1}/mgr_serv ] ; then
+		if [ ! -e $QPKG_DIR/services/${VERSION} ] ; then
+			mkdir $QPKG_DIR/services/${VERSION}
+		fi
+		cp $DPKG_DIR/${1}/mgr_serv/$1 $QPKG_DIR/services/${VERSION}/
+		NUMBER=`/sbin/getcfg $1 NUMBER -d "00" -f $DPKG_DIR/${1}/mgr_serv/$1.conf`
+		ln -s $QPKG_DIR/services/${VERSION}/$1 $QPKG_DIR/services/${VERSION}/S${NUMBER}${1}
+		ln -s $QPKG_DIR/services/${VERSION}/$1 $QPKG_DIR/services/${VERSION}/K${NUMBER}${1}
+		INITIAL_ENABLE=`/sbin/getcfg $1 INITIAL_ENABLE -d FALSE -f $DPKG_DIR/${1}/mgr_serv/$1.conf`
+		/sbin/setcfg $VERSION ${1}_ENABLE $INITIAL_ENABLE -f /etc/config/debian6.conf
+	fi
+	START=`/sbin/getcfg $1 START_IMMEDIATLY -d NO -f $DPKG_DIR/${1}/mgr_serv/$1.conf`
+	if [ "${START}" = "YES" ] ; then
+		deb_run_serv $1 -v $VERSION
+	fi
+
+else
+	echo " $1 is not a directory or don't exist"
+fi
+exit 0

@@ -1,0 +1,23 @@
+#!/bin/sh 
+
+if [ "$1" = "-v" ] ; then
+		if [ -n "$2" ] ; then
+			VERSION=$2
+		else
+			echo " -v need a chroot version after "
+			exit 1
+		fi
+else
+	VERSION=`getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/debian6.conf`
+	if [ "$VERSION" = "" ] ; then
+		VERSION=`getcfg debian6 DEFAULT_VERSION -d "" -f /etc/config/debian6.conf`
+	fi
+fi
+
+DEB_BASE=`getcfg $VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+if [ -z $DEB_BASE ] ; then
+	echo " No DEB_BASE for $VERSION chroot ... not started ? "
+	exit 1
+else
+	echo $DEB_BASE
+fi

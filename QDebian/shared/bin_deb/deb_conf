@@ -1,0 +1,4 @@
+#!/bin/sh
+
+vi /etc/config/debian6.conf
+

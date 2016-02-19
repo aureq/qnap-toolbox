@@ -1,0 +1,42 @@
+#!/bin/sh
+##################### THIS IS START STOP Script for service start from QNAP executed in Chroot thru deb_bash
+MY_SERVICE=test_service
+
+VERSION=`/sbin/getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/debian6.conf`
+if [ "$2" = "-v" ] ; then
+	if [ -n "$3" ] ; then
+		VERSION=$3
+	else
+		echo " -v need a chroot version after "
+	fi
+fi
+ENABLE=`/sbin/getcfg $VERSION ${MY_SERVICE}_ENABLE -d FALSE -f /etc/config/debian6.conf`
+
+case "$1" in
+	start)
+		if [ $ENABLE = TRUE ] ; then
+			echo " Starting test_service here we are in Qnap env. "
+			/bin_deb/deb_bash -v $VERSION echo " here we are in chroot env : `deb_bash  -v $VERSION echo $HOME` : `deb_bash -v $VERSION id` "
+			echo " I am back"
+		else
+			echo " test_service is Disable ... "
+		fi
+	;;
+	stop)
+		echo " Stoping test_service  "
+	;;
+	enable_start)
+		/sbin/setcfg $VERSION ${MY_SERVICE}_ENABLE TRUE -f /etc/config/debian6.conf
+		$0 start -v $VERSION
+	;;
+	disable_stop)
+		/sbin/setcfg $VERSION ${MY_SERVICE}_ENABLE FALSE -f /etc/config/debian6.conf
+		$0 stop -v $VERSION
+	;;
+	*)
+		echo " Usage : service_name start|stop|enable_start|disable_stop [-v version] "
+		exit 1
+	;;
+esac
+
+exit 0

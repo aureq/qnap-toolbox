@@ -1,0 +1,7 @@
+#!/bin/sh
+####### THIS CODE RUN IN QNAP Env.
+
+echo "Post install for test_service"
+echo "Nothing to do"
+
+exit 0

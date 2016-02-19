@@ -1,0 +1,111 @@
+#!/bin/sh
+
+make_base(){
+# Determine BASE installation location according to smb.conf
+BASE_GROUP="/share/HDA_DATA /share/HDB_DATA /share/HDC_DATA /share/HDD_DATA /share/HDE_DATA /share/HDF_DATA /share/HDG_DATA /share/HDH_DATA /share/MD0_DATA /share/MD1_DATA /share/MD2_DATA /share/MD3_DATA"
+publicdir=`/sbin/getcfg Public path -f /etc/config/smb.conf`
+if [ ! -z $publicdir ] && [ -d $publicdir ];then
+        publicdirp1=`/bin/echo $publicdir | /bin/cut -d "/" -f 2`
+        publicdirp2=`/bin/echo $publicdir | /bin/cut -d "/" -f 3`
+        publicdirp3=`/bin/echo $publicdir | /bin/cut -d "/" -f 4`
+        if [ ! -z $publicdirp1 ] && [ ! -z $publicdirp2 ] && [ ! -z $publicdirp3 ]; then
+                [ -d "/${publicdirp1}/${publicdirp2}/Public" ] && VOL_BASE="/${publicdirp1}/${publicdirp2}"
+        fi
+fi
+
+# Determine BASE installation location by checking where the Public folder is.
+if [ -z $VOL_BASE ]; then
+        for datadirtest in $BASE_GROUP; do
+                [ -d $datadirtest/Public ] && VOL_BASE="/${publicdirp1}/${publicdirp2}"
+        done
+fi
+if [ -z $VOL_BASE ] ; then
+        echo "The Public share not found."
+        return 1
+fi
+
+}
+
+make_base
+QPKG_DIR=$VOL_BASE/.qpkg/debian6
+
+VERSION=`getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/debian6.conf`
+if [ -z $1 ] ; then
+	echo "Usage : deb_run_serv service_name start|stop|restart|status|force_start|force_stop|enable_service|disable_service [-v version]"
+	echo "   Or : deb_run_serv any_value list [-v version] ... any_value ... what you want, not used, BUT mandatory"
+	exit 1
+fi
+if [ "$3" = "-v" ] ; then
+	if [ -n "$4" ] ; then
+		VERSION=$4
+	else
+		echo " -v need a chroot version after "
+	fi
+fi
+if [ "$2" != "list" ] ; then
+	DEB_BASE=`/sbin/getcfg $VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+	if [ -z $DEB_BASE ] ; then
+		echo " Debian 6 Root folder unknow or env. not set"
+		exit 1
+	fi
+fi
+SERV=`getcfg $VERSION $1 -d "" -f /etc/config/debian6.conf`
+if [ "$SERV" != "INSTALLED" ] ; then
+	if [ "$2" != "list" ] ; then
+		echo "Service $1 is not installed in $VERSION chroot env. "
+		exit 1
+	fi	
+fi
+if [ -z $2 ] ; then
+	echo "Usage : deb_run_serv service_name start|stop|restart|status|force_start|force_stop|enable_service|disable_service [-v version]"
+	echo "   Or : deb_run_serv any_value list [-v version] ... any_value ... what you want, not used, BUT mandatory"
+	exit 1
+fi
+case "$2" in
+	start)
+		echo "Start service : $1 "
+		$QPKG_DIR/services/${VERSION}/$1 start -v $VERSION
+	;;
+	stop)
+		$QPKG_DIR/services/${VERSION}/$1 stop -v $VERSION
+	;;
+	force_start)
+		/sbin/setcfg $VERSION ${1}_ENABLE TRUE -f /etc/config/debian6.conf
+		$0 $1 start -v $VERSION
+	;;
+	force_stop)
+		/sbin/setcfg $VERSION ${1}_ENABLE FALSE -f /etc/config/debian6.conf
+		$0 $1 stop -v $VERSION
+	;;
+	enable_service)
+		/sbin/setcfg $VERSION ${1}_ENABLE TRUE -f /etc/config/debian6.conf
+	;;
+	disable_service)
+		/sbin/setcfg $VERSION ${1}_ENABLE FALSE -f /etc/config/debian6.conf
+	;;
+	restart)
+		$0 $1 stop -v $VERSION
+		$0 $1 start -v $VERSION
+	;;
+	status)
+		$QPKG_DIR/services/${VERSION}/$1 status -v $VERSION
+	;;
+	list)
+		if [ -e $QPKG_DIR/services/${VERSION}/ ] ; then
+			echo " List of avalaible services for $VERSION chroot env. "
+			ls -1 $QPKG_DIR/services/${VERSION}/ | grep -v K | grep -v S | grep -v dont_remove | tr -d '*'
+			echo " "
+		else
+			echo "Seems that $VERSION don't exist in Debian6"
+		fi
+	;;
+	*)
+		echo "Usage : deb_run_serv service_name start|stop|restart|force_start|force_stop|enable_service|disable_service [-v version]"
+		echo "        deb_run all_service list [-v version] .... a value (any) is MANDATORY "
+		echo "   deb_run_serv service_name start|stop|restart|status ... execute for SERVICE in chroot VERSION the respective command "
+		echo "   deb_run_serv service_name force_start|force_stop start|stop and change Service_Enable status in debian6.conf file"
+		echo "   deb_run_serv service_name enable_service|disable_service .... change only the service_Enable TRUE|FALSE in debian6.conf"
+		echo "   deb_run_serv service list List all services availablke for version (default CURRENT_VERSION) "
+		exit 1
+	;;
+esac

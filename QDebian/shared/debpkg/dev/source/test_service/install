@@ -1,0 +1,7 @@
+#!/bin/sh
+#### THIS CODE RUN INSIDE the chroot ENV. ######
+echo "Here inside the chroot env"
+echo `id` " " $HOME " " `uname -a`
+echo "done"
+
+exit 0

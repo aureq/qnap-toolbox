@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ -z "$1" ] ; then
+	echo "Usage : create_dpkg serv_name version (ex create_dpkg apache2 1.1) "
+	exit 1
+fi
+if [ -z "$2" ] ; then
+        echo "Usage : create_dpkg serv_name version (ex create_dpkg apache2 1.1) "
+        exit 1
+fi
+if [ ! -e source/$1 ] ; then
+	echo "$1 not exist under source folder"
+	exit 1
+fi
+cd source
+tar czf $1.tgz $1
+cd ..
+cat entete.sh > source/$1-$2.dpkg
+cat source/$1.tgz >> source/$1-$2.dpkg
+rm -f source/$1.tgz
+cp source/$1-$2.dpkg ../
+rm -f source/$1-$2.dpkg
+chmod +x ../$1-$2.dpkg
+echo $1-$2.dpkg created in debpkg  directory ...
