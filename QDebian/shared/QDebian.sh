@@ -77,7 +77,7 @@ for i in ${QPKG_DIR}/services/${DEB_VERSION}/S??* ;do
 			if [ -e $i ] ; then
 				$i start
 			else
-				echo "Link $i certernly incorrect"
+				echo "Link $i is incorrect"
 			fi
 		;;
 	esac
@@ -100,7 +100,7 @@ for i in $QPKG_DIR/services/${DEB_VERSION}/K??* ;do
 			if [ -e $i ] ; then
 				$i stop
 			else
-				echo "Link $i certernly incorrect"
+				echo "Link $i is incorrect"
 			fi
 		;;
 	esac
