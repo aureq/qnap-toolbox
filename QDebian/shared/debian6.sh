@@ -96,7 +96,7 @@ done
 make_base
 ####
 QPKG_DIR=`/sbin/getcfg $QPKG_NAME Install_Path -d "" -f /etc/config/qpkg.conf`
-if [ -z "$QPKG_NAME" -o ! -d "$QPKG_NAME" ]; then
+if [ -z "$QPKG_DIR" -o ! -d "$QPKG_DIR" ]; then
 	echo "QDebian installation path not found."
 	exit 1
 fi
