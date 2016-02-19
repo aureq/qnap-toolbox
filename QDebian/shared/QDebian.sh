@@ -187,7 +187,7 @@ case "$1" in
 			exit 1
 		fi
 		mount_deb
-		if [ "$?" -ne "0"]; then
+		if [ "$?" -ne "0" ]; then
 			echo " Failed to mount system mounts"
 			exit 1
 		fi
