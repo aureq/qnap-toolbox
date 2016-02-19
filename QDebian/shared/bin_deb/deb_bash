@@ -1,5 +1,7 @@
 #!/bin/sh
 
+QPKG_NAME="QDebian"
+
 if [ "$1" = "-v" ] ; then
 # assume $2 is version name
 	if [ -n "$2" ] ; then
@@ -11,12 +13,12 @@ if [ "$1" = "-v" ] ; then
 		exit 1
 	fi
 else
-	VERSION=`getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/debian6.conf`
+	VERSION=`getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/${QPKG_NAME}.conf`
 	if [ "$VERSION" = "" ] ; then
-		VERSION=`getcfg debian6 DEFAULT_VERSION -d "" -f /etc/config/debian6.conf`
+		VERSION=`getcfg debian6 DEFAULT_VERSION -d "" -f /etc/config/${QPKG_NAME}.conf`
 	fi
 fi
-DEB_BASE=`getcfg $VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+DEB_BASE=`getcfg $VERSION DEB_BASE -d "" -f /etc/config/${QPKG_NAME}.conf`
 
 if [ -z $DEB_BASE ] ; then
 	echo " Debian 6 Root folder unknow or env. not set"

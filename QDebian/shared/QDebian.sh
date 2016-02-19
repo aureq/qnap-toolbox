@@ -104,12 +104,12 @@ fi
 ########## TEST if first start
 if [ ! -e /root/.debian6_lock ] ; then
 	## clean all DEB_BASE and CURRENT_VERSION ... in case of crash ...
-	AVAL=`grep '\[' /etc/config/debian6.conf | grep -v debian6 | tr -d '\[' | tr -d '\]'`
+	AVAL=`grep '\[' /etc/config/${QPKG_NAME}.conf | grep -v debian6 | tr -d '\[' | tr -d '\]'`
 	for i in $AVAL
 	do
-		/sbin/setcfg $i DEB_BASE "" -f /etc/config/debian6.conf
+		/sbin/setcfg $i DEB_BASE "" -f /etc/config/${QPKG_NAME}.conf
 	done
-	/sbin/setcfg debian6 CURRENT_VERSION "" -f /etc/config/debian6.conf
+	/sbin/setcfg debian6 CURRENT_VERSION "" -f /etc/config/${QPKG_NAME}.conf
 	### then create LINK and mod /etc/profile
 	if [ ! -e /bin_deb ] ; then
 		/bin/ln -s ${QPKG_DIR}/bin_deb /bin_deb
@@ -132,7 +132,7 @@ if [ ! -e /root/.debian6_lock ] ; then
 	touch /root/.debian6_lock
 fi
 #####
-DEB_VERSION=`/sbin/getcfg debian6 DEFAULT_VERSION -d root6 -f /etc/config/debian6.conf`
+DEB_VERSION=`/sbin/getcfg debian6 DEFAULT_VERSION -d root6 -f /etc/config/${QPKG_NAME}.conf`
 FLAG_V=0
 if [ "$2" = "-v" ] ; then
 	if [ ! -z $3 ] ; then
@@ -143,10 +143,10 @@ if [ "$2" = "-v" ] ; then
 		/sbin/log_tool -t 2 -a "Chroot Debian -v need version to start"
 		exit 1
 	fi
-	RESULT=`/sbin/getcfg $DEB_VERSION Enable -d "FALSE" -f /etc/config/debian6.conf`
+	RESULT=`/sbin/getcfg $DEB_VERSION Enable -d "FALSE" -f /etc/config/${QPKG_NAME}.conf`
 	if  [ "$RESULT" = "FALSE" ] ; then
-		echo " $DEB_VERSION is disabled or don't exist in /etc/config/debian6.conf"
-			/sbin/log_tool -t 2 -a "$DEB_VERSION is disabled or don't exist in /etc/config/debian6.conf"
+		echo " $DEB_VERSION is disabled or don't exist in /etc/config/${QPKG_NAME}.conf"
+			/sbin/log_tool -t 2 -a "$DEB_VERSION is disabled or don't exist in /etc/config/${QPKG_NAME}.conf"
 		exit 1
 	fi
 fi
@@ -162,17 +162,17 @@ case "$1" in
 			exit 1
 		fi
 		## test id already started ...
-		BASE=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+		BASE=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/${QPKG_NAME}.conf`
 		if [ ! -z $BASE ] ; then
 			echo " Debian chroot already Started $BASE "
 			exit 1
 		fi
 		mount_deb
 		echo " Root Folder : " $DEB_BASE " Debian chroot name : " $DEB_VERSION
-		/sbin/setcfg $DEB_VERSION DEB_BASE $DEB_BASE -f /etc/config/debian6.conf
-		CURRENT=`/sbin/getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/debian6.conf`
+		/sbin/setcfg $DEB_VERSION DEB_BASE $DEB_BASE -f /etc/config/${QPKG_NAME}.conf
+		CURRENT=`/sbin/getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/${QPKG_NAME}.conf`
 		if [ -z $CURRENT ] ; then
-			/sbin/setcfg debian6 CURRENT_VERSION ${DEB_VERSION} -f /etc/config/debian6.conf
+			/sbin/setcfg debian6 CURRENT_VERSION ${DEB_VERSION} -f /etc/config/${QPKG_NAME}.conf
 		else
 			echo " CURRENT VERSION exist no change it's a second version of chroot"
 		fi
@@ -180,22 +180,22 @@ case "$1" in
 		/sbin/log_tool -t 0 -a "Chroot Debian $DEB_VERSION in : $DEB_BASE Started"
 		;;
 	stop)
-		DEB_BASE=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+		DEB_BASE=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/${QPKG_NAME}.conf`
 		if [ "$DEB_BASE" = "" ] ; then
 			echo "Stop : Nothing to do VERSION $DEB_VERSION not started"
 			exit 0
 		fi
 		stop_services
 		umount_deb
-		/sbin/setcfg $DEB_VERSION DEB_BASE "" -f /etc/config/debian6.conf
-		CURRENT=`/sbin/getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/debian6.conf`
+		/sbin/setcfg $DEB_VERSION DEB_BASE "" -f /etc/config/${QPKG_NAME}.conf
+		CURRENT=`/sbin/getcfg debian6 CURRENT_VERSION -d "" -f /etc/config/${QPKG_NAME}.conf`
 		if [ "$CURRENT" = "$DEB_VERSION" ] ; then
-			/sbin/setcfg debian6 CURRENT_VERSION "" -f /etc/config/debian6.conf
+			/sbin/setcfg debian6 CURRENT_VERSION "" -f /etc/config/${QPKG_NAME}.conf
 		fi
 		/sbin/log_tool -t 0 -a "Chroot Debian $DEB_VERSION Stopped"
 		;;
 	update)
-		DEB_BASE=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+		DEB_BASE=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/${QPKG_NAME}.conf`
 		if [ "$DEB_BASE" = "" ] ; then
 			echo "Update : Nothing to do VERSION $DEB_VERSION not started"
 			exit 0
@@ -216,20 +216,20 @@ case "$1" in
 		/sbin/setcfg $QPKG_NAME Enable FALSE -f /etc/config/qpkg.conf
 		;;
 	status)
-		STAT=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+		STAT=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/${QPKG_NAME}.conf`
 		if [ -z "$STAT" ] ; then
 			echo "Default Debian6 is not up ... "
 		else
 			echo "Default Debian6 is up .... "
 			echo "Root Folder : " $DEB_BASE " Debian chroot name : " $DEB_VERSION
 		fi
-			echo " CURRENT_VERSION = " `grep CURRENT /etc/config/debian6.conf | cut -f 2 -d '='`
-			echo " DEFAULT_VERSION = " `grep DEFAULT /etc/config/debian6.conf | cut -f 2 -d '='`
-			AVAL=`grep '\[' /etc/config/debian6.conf | grep -v debian6 | tr -d '\[' | tr -d '\]'`
+			echo " CURRENT_VERSION = " `grep CURRENT /etc/config/${QPKG_NAME}.conf | cut -f 2 -d '='`
+			echo " DEFAULT_VERSION = " `grep DEFAULT /etc/config/${QPKG_NAME}.conf | cut -f 2 -d '='`
+			AVAL=`grep '\[' /etc/config/${QPKG_NAME}.conf | grep -v debian6 | tr -d '\[' | tr -d '\]'`
 			echo " VERSION available = " $AVAL
 			for i in $AVAL
 			do
-				STAT=`/sbin/getcfg $i DEB_BASE -d "" -f /etc/config/debian6.conf`
+				STAT=`/sbin/getcfg $i DEB_BASE -d "" -f /etc/config/${QPKG_NAME}.conf`
 				if [ -n "$STAT" ] ; then
 					echo " VERSION $i is started BASE is : $STAT "
 				fi
@@ -237,23 +237,23 @@ case "$1" in
 			echo " QPKG status is (Enable value) : " `/sbin/getcfg $QPKG_NAME Enable -d "Not Set" -f /etc/config/qpkg.conf`
 		;;
 	stop_all)
-			AVAL=`grep '\[' /etc/config/debian6.conf | grep -v debian6 | tr -d '\[' | tr -d '\]'`
+			AVAL=`grep '\[' /etc/config/${QPKG_NAME}.conf | grep -v debian6 | tr -d '\[' | tr -d '\]'`
 			for i in $AVAL
 			do
-				STAT=`/sbin/getcfg $i DEB_BASE -d "" -f /etc/config/debian6.conf`
+				STAT=`/sbin/getcfg $i DEB_BASE -d "" -f /etc/config/${QPKG_NAME}.conf`
 				if [ -n "$STAT" ] ; then
 					$0 stop -v $i
 				fi
 			done
 		;;
 	set_default)
-		/sbin/setcfg debian6 DEFAULT_VERSION $DEB_VERSION -f /etc/config/debian6.conf
+		/sbin/setcfg debian6 DEFAULT_VERSION $DEB_VERSION -f /etc/config/${QPKG_NAME}.conf
 		;;
 	set_current)
 	if [ $FLAG_V -eq 1 ] ; then
-		STAT=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/debian6.conf`
+		STAT=`/sbin/getcfg $DEB_VERSION DEB_BASE -d "" -f /etc/config/${QPKG_NAME}.conf`
 		if [ -n "$STAT" ] ; then
-			/sbin/setcfg debian6 CURRENT_VERSION $DEB_VERSION -f /etc/config/debian6.conf
+			/sbin/setcfg debian6 CURRENT_VERSION $DEB_VERSION -f /etc/config/${QPKG_NAME}.conf
 		else
 			echo " This version : $DEB_VERSION don't run .... "
 			exit 1
