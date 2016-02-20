@@ -141,7 +141,7 @@ case "$1" in
 			echo "$QPKG_NAME: Processing $DEVICE"
 
 			if [ ! -z "$(cat /proc/mounts | awk '{print $1}' | grep "$DEVICE")" ]; then
-				umount --verbose "$DEVICE" 2>&1 | sed 's/^\(.*\)$/umount: \1/g'
+				umount --verbose "$MOUNT_POINT" 2>&1 | sed 's/^\(.*\)$/umount: \1/g'
 				if [ "$?" -ne "0" ]; then
 					echo "$QPKG_NAME: Failed to unmount $DEVICE"
 				fi
