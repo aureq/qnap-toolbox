@@ -82,11 +82,13 @@ case "$1" in
 				case $FS_TYPE in
 					ext*)
 						echo "$QPKG_NAME: fsck requested for ${dEVICE}..."
-						e2fsck -n -f "$DEVICE" 2>&1 | sed 's/^\(.*\)$/e2fsck: \1/g'
+						e2fsck_64 -n -f "$DEVICE" 2>&1 | sed 's/^\(.*\)$/e2fsck: \1/g'
 						if [ "$?" -ne "0" ]; then
 							echo "$QPKG_NAME: Device ${DEVICE} requires the Administrator's attention. Not mounting."
 							continue;
 						fi
+					;;
+					auto)
 					;;
 					*)
 						echo "$QPKG_NAME: Only 'ext(2|3|4)' file system types support fsck operations"
