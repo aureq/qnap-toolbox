@@ -116,7 +116,7 @@ case "$1" in
 		fi
 
 		
-		cat "$QMOUNTFS_CFG" | sed -n '/^#/!p' | while read LINE; do
+		cat "$QMOUNTFS_CFG" | sed -n '/^#/!p' | sed '1!G;h;$!d' | while read LINE; do
 			DEVICE="`echo $LINE | awk '{print $1}'`"
 			MOUNT_POINT="`echo $LINE | awk '{print $2}'`"
 			FS_TYPE="`echo $LINE | awk '{print $3}'`"
@@ -128,19 +128,19 @@ case "$1" in
 				continue
 			fi
 
-			if [ ! -e "$DEVICE" ]; then
-				echo "$QPKG_NAME: Cannot find $DEVICE"
-				continue
-			fi
-
 			if [ -z "$MOUNT_POINT" ]; then
 				echo "$QPKG_NAME: No mount point specified for $DEVICE"
 				continue
 			fi
-				
+
+			if [ ! -e "$DEVICE" -o ! -d "$MOUNT_POINT" ]; then
+				echo "$QPKG_NAME: Cannot find $DEVICE"
+				continue
+			fi
+
 			echo "$QPKG_NAME: Processing $DEVICE"
 
-			if [ ! -z "$(cat /proc/mounts | awk '{print $1}' | grep "$DEVICE")" ]; then
+			if [ ! -z "$(cat /proc/mounts | awk '{print $2}' | grep "$MOUNT_POINT")" ]; then
 				umount --verbose "$MOUNT_POINT" 2>&1 | sed 's/^\(.*\)$/umount: \1/g'
 				if [ "$?" -ne "0" ]; then
 					echo "$QPKG_NAME: Failed to unmount $DEVICE"
