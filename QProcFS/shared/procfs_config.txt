@@ -1,7 +1,29 @@
 # this is the main configiuration file for QProcFS package
 # the first field is a path to /proc entry and remaining fields are the values to input
+# memory optimization
 /proc/sys/vm/laptop_mode 5
 /proc/sys/vm/dirty_writeback_centisecs 8640000
 /proc/sys/vm/dirty_expire_centisecs 8640000
 /proc/sys/vm/dirty_ratio 40
 /proc/sys/vm/swappiness 10
+# network optimization: read buffer
+/proc/sys/net/core/rmem_default 1048560
+/proc/sys/net/core/rmem_max 2097152
+# network optimization: write buffer
+/proc/sys/net/core/wmem_default 1048560
+/proc/sys/net/core/wmem_max 2097152
+# network optimization: Number of packets to buffer when kernel doesn't have enough time to process them (deprecated ?)
+/proc/sys/net/core/netdev_max_backlog 1000
+# network optimization: not in bytes. Number of 'cmsghdr' structs for sockets
+/proc/sys/net/core/optmem_max 163840
+# network optimization: ip stack
+/proc/sys/net/ipv4/tcp_sack 0
+/proc/sys/net/ipv4/tcp_timestamps 0
+# network optimization: ip stack: 65k 1M 2M (3rd doesn't override core/rmem_max)
+/proc/sys/net/ipv4/tcp_mem 3129344 3137536 3145728
+# network optimization: ip stack: 65k 1M 2M (3rd doesn't override core/wmem_max)
+/proc/sys/net/ipv4/tcp_wmem 65536 1048576 2097152
+# network optimization: ip stack: number of packet to reorder in tcp stream
+/proc/sys/net/ipv4/tcp_reordering 8
+# network optimization: ip stack: Number of connection requests (high connection load server)
+/proc/sys/net/ipv4/tcp_max_syn_backlog 2048
