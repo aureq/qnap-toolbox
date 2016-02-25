@@ -23,19 +23,17 @@ case "$1" in
 			mv -f "$QPROCFS_BAK" "${QPROCFS_BAK}.orig"
 		fi
 
-		echo "Saving ProcFS value..."
-		for P in `cat $QPROCFS_CFG | sed -n '/^#/!p' | cut -f 1 -d ' '`; do
-			if [ ! -e "$P" ]; then
-				continue
-			fi
-			V=`cat $P`
-			echo "$P $V" >> $QPROCFS_BAK
-		done
-
 		echo "Setting ProcFS..."
 		cat $QPROCFS_CFG | sed -n '/^#/!p' | while read L; do
 			P=`echo $L | cut -f 1 -d ' '`
 			V=`echo $L | cut -f 2- -d ' '`
+
+			if [ ! -e "$P" ]; then
+				continue
+			fi
+
+			OV=`cat $P`
+			echo "$P $OV" >> $QPROCFS_BAK
 
 			echo "  * Setting '$P' to '$V'"
 			echo "$V" > "$P"
