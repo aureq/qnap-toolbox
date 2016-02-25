@@ -81,12 +81,15 @@ case "$1" in
 
 				case $FS_TYPE in
 					ext*)
-						echo "$QPKG_NAME: fsck requested for ${dEVICE}..."
-						e2fsck_64 -n -f "$DEVICE" 2>&1 | sed 's/^\(.*\)$/e2fsck: \1/g'
-						if [ "$?" -ne "0" ]; then
-							echo "$QPKG_NAME: Device ${DEVICE} requires the Administrator's attention. Not mounting."
-							continue;
-						fi
+						echo "$QPKG_NAME: fsck requested for ${DEVICE} but Qnap is missing implementation"
+						#'e2fsck' does not support fs formatted with 64 bits
+						#'e2fsck_64' fails to recognise my ext4
+						#echo "$QPKG_NAME: fsck requested for ${DEVICE}..."
+						#e2fsck_64 -n -f "$DEVICE" 2>&1 | sed 's/^\(.*\)$/e2fsck: \1/g'
+						#if [ "$?" -ne "0" ]; then
+						#	echo "$QPKG_NAME: Device ${DEVICE} requires the Administrator's attention. Not mounting."
+						#	continue;
+						#fi
 					;;
 					auto)
 					;;
