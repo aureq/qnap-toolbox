@@ -25,6 +25,9 @@ case "$1" in
 
 		echo "Saving ProcFS value..."
 		for P in `cat $QPROCFS_CFG | sed -n '/^#/!p' | cut -f 1 -d ' '`; do
+			if [ ! -e "$P" ]; then
+				continue
+			fi
 			V=`cat $P`
 			echo "$P $V" >> $QPROCFS_BAK
 		done
@@ -50,6 +53,10 @@ case "$1" in
 		cat $QPROCFS_BAK | sed -n '/^#/!p' | while read L; do
 			P=`echo $L | cut -f 1 -d ' '`
 			V=`echo $L | cut -f 2- -d ' '`
+
+			if [ ! -e "$P" ]; then
+				continue
+			fi
 
 			echo "  * Setting '$P' to '$V'"
 			echo "$V" > "$P"
